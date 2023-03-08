@@ -10,6 +10,10 @@ import java.time.format.DateTimeFormatter;
 
 public class TerminalLogger extends MiraiLoggerPlatformBase {
 
+    public static void log(String s){
+        System.out.println(new Log(Level.INFO,s,LocalDateTime.now()));
+    }
+
     @Override
     protected void debug0(@Nullable String s, @Nullable Throwable throwable) {
         System.out.println(new Log(Level.DEBUG, s, LocalDateTime.now()));
@@ -64,7 +68,7 @@ public class TerminalLogger extends MiraiLoggerPlatformBase {
     @Nullable
     @Override
     public String getIdentity() {
-        return "NekoBot";
+        return "NekoQQBot";
     }
 
     @Data

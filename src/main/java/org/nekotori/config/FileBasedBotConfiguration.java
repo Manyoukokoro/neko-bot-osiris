@@ -19,6 +19,13 @@ public class FileBasedBotConfiguration {
     @Getter
     public static FileBasedBotConfiguration INSTANCE = null;
 
+    public static final String DEFAULT_CONFIG_LOCATION = "/usr/local/bot/config.yaml";
+
+    static  {
+        BufferedInputStream configStream = FileUtil.getInputStream(new File(DEFAULT_CONFIG_LOCATION));
+        INSTANCE = YamlUtil.load(configStream, FileBasedBotConfiguration.class);
+    }
+
     public static FileBasedBotConfiguration resolveFile(File file){
         BufferedInputStream configStream = FileUtil.getInputStream(file);
         INSTANCE = YamlUtil.load(configStream, FileBasedBotConfiguration.class);
@@ -27,7 +34,9 @@ public class FileBasedBotConfiguration {
 
     private String deviceInfo;
 
-    private Account bot;
+    private QQAccount qq;
+
+    private Discord discord;
 
     private Long admin;
 
@@ -35,9 +44,20 @@ public class FileBasedBotConfiguration {
 
 
     @Data
-    public static class Account{
-        private Long qq;
+    public static class QQAccount {
+
+        private Long account;
 
         private String passwd;
+    }
+
+    @Data
+    public static class Discord {
+
+        private String token;
+
+        private String proxyHost;
+
+        private int proxyPort;
     }
 }
