@@ -1,8 +1,11 @@
 package org.nekotori.bot;
 
+import org.nekotori.event.NekoMessageEvent;
 import reactor.core.publisher.Flux;
 
-public interface NekoBot<EVENT_SUPER> {
+public interface NekoBot<B,M> {
 
-     <T extends EVENT_SUPER> Flux<T> listenOn(Class<T> eventType);
+     <T extends B> Flux<T> onEvent(Class<T> eventType);
+
+     <T extends M> NekoMessageEvent<T> onMessageEvent(Class<T> eventType);
 }

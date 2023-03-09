@@ -4,10 +4,14 @@ import discord4j.common.ReactorResources;
 import discord4j.core.DiscordClient;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.Event;
+import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.event.domain.message.MessageEvent;
 import discord4j.gateway.GatewayReactorResources;
 import io.netty.util.internal.StringUtil;
 import org.nekotori.config.FileBasedBotConfiguration;
 import org.nekotori.config.FileBasedBotConfiguration.Discord;
+import org.nekotori.event.DCMessageEvent;
+import org.nekotori.event.NekoMessageEvent;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
@@ -16,7 +20,7 @@ import reactor.netty.transport.ProxyProvider;
 import java.io.File;
 import java.util.Optional;
 
-public class NekoDiscordBot implements NekoBot<Event> {
+public class NekoDiscordBot implements NekoBot<Event, MessageEvent> {
 
 
     private Mono<GatewayDiscordClient> gateway;
@@ -55,7 +59,12 @@ public class NekoDiscordBot implements NekoBot<Event> {
 
 
     @Override
-    public <T extends Event> Flux<T> listenOn(Class<T> eventType) {
+    public <T extends Event> Flux<T> onEvent(Class<T> eventType) {
         return gateway.flux().concatMap(gw -> gw.on(eventType));
+    }
+
+    @Override
+    public <T extends MessageEvent> NekoMessageEvent<T> onMessageEvent(Class<T> eventType) {
+        return null;
     }
 }

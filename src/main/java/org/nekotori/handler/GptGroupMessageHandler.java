@@ -2,21 +2,21 @@ package org.nekotori.handler;
 
 import net.mamoe.mirai.contact.Member;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
-import net.mamoe.mirai.message.data.At;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
 import net.mamoe.mirai.message.data.QuoteReply;
 import net.mamoe.mirai.message.data.SingleMessage;
 import org.nekotori.gpt.ChatBot;
 import org.nekotori.gpt.ChatGpt;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.FluxSink;
+import org.nekotori.gpt.GptPersistence;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class GptGroupMessageHandler implements MessageHandler<GroupMessageEvent> {
     private static Map<Member,ChatBot> targetMap = new HashMap<>();
@@ -24,9 +24,9 @@ public class GptGroupMessageHandler implements MessageHandler<GroupMessageEvent>
     private static final String ERROR_TEMPLATE = "ops! please contact administrator, the error info is gpt error: %s";
     @Override
     public void handle(GroupMessageEvent message) {
-        if(!isAtMe(message)){return;}
+        String description = GptPersistence.getDescription(message.getGroup().getId());
         ChatBot chatBot = Optional.ofNullable(targetMap.get(message.getSender()))
-                .orElse(new ChatGpt());
+                .orElse(new ChatGpt(description));
         Optional<String> s = analysisTextContent(message.getMessage());
         s.ifPresent( content-> chatBot.getReply(content)
                 .contextWrite((ctx)->ctx.put(ChatBot.ERROR_KEY,ERROR_TEMPLATE))
@@ -40,23 +40,16 @@ public class GptGroupMessageHandler implements MessageHandler<GroupMessageEvent>
 
 
     private Optional<String> analysisTextContent(MessageChain messages){
-        return messages.stream().filter(singleMessage -> !(singleMessage instanceof At))
+        List<String> prom = messages.stream()
                 .map(SingleMessage::contentToString)
+                .map(String::trim)
                 .flatMap(s -> Arrays.stream(s.split(" ")))
                 .filter(Objects::nonNull)
+                .filter(s->!s.isEmpty())
+                .collect(Collectors.toList());
+        // this is command
+        prom.remove(0);
+        return prom.stream()
                 .reduce(String::concat);
-    }
-
-    private boolean isAtMe(GroupMessageEvent message) {
-        boolean isAtMe = false;
-        for (SingleMessage s : message.getMessage()) {
-            if (s instanceof At && ((At) s).getTarget() == message.getBot().getId()) {
-                isAtMe = true;
-            }
-            if (s.contentToString().contains("@" + message.getBot().getNick())) {
-                isAtMe = true;
-            }
-        }
-        return isAtMe;
     }
 }

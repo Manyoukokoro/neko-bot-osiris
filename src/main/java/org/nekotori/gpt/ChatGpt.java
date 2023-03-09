@@ -8,6 +8,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.nekotori.config.FileBasedBotConfiguration;
 import org.nekotori.log.TerminalLogger;
@@ -25,28 +26,34 @@ public class ChatGpt implements ChatBot {
     private static final String MODEL_VALUE = "gpt-3.5-turbo";
     private static final String MESSAGE = "messages";
     private LinkedList<HISTORY> history;
+
+    @Setter
+    private String description;
     private final String privateKey;
     private final String proxyHost;
     private final int proxyPort;
 
-    public ChatGpt(){
+    public ChatGpt(String description){
         history = new LinkedList<>();
         privateKey = FileBasedBotConfiguration.getINSTANCE().getGptKey();
         proxyHost = FileBasedBotConfiguration.getINSTANCE().getDiscord().getProxyHost();
         proxyPort = FileBasedBotConfiguration.getINSTANCE().getDiscord().getProxyPort();
+        this.description = description;
     }
 
-    private ChatGpt(String key){
+    private ChatGpt(String key,String description){
         history = new LinkedList<>();
         privateKey = key;
         proxyHost = FileBasedBotConfiguration.getINSTANCE().getDiscord().getProxyHost();
         proxyPort = FileBasedBotConfiguration.getINSTANCE().getDiscord().getProxyPort();
+        this.description = description;
     }
 
     @Override
     public Flux<String> getReply(String userInput) {
         return Flux.deferContextual((contextView) -> getResponse(userInput)
-                        .onErrorResume(e -> Flux.just(String.format((String) contextView.get(ERROR_KEY),
+                        .onErrorResume(e ->
+                                Flux.just(String.format((String) contextView.get(ERROR_KEY),
                                 Optional.ofNullable(e.getCause())
                                         .map(Throwable::getMessage)
                                         .orElse(e.getMessage()))))
@@ -70,7 +77,10 @@ public class ChatGpt implements ChatBot {
     private String prepareGptRequestBody() {
         JSONObject body = new JSONObject();
         body.putOnce(MODEL,MODEL_VALUE);
-        body.putOnce(MESSAGE,history);
+        LinkedList<HISTORY> copyOfHistory = new LinkedList<>(history);
+        copyOfHistory.addFirst(new HISTORY(HISTORY.SYSTEM,description));
+        body.putOnce(MESSAGE,copyOfHistory);
+        TerminalLogger.log(body.toStringPretty());
         return body.toString();
     }
 
@@ -96,7 +106,7 @@ public class ChatGpt implements ChatBot {
 
     @Override
     public boolean refresh() {
-        history = new LinkedList<>();
+        history.clear();
         return true;
     }
 
@@ -106,6 +116,8 @@ public class ChatGpt implements ChatBot {
         static final String USER = "user";
 
         static final String ASSISTANT = "assistant";
+
+        static final String SYSTEM = "system";
 
         private String role;
 
