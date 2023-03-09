@@ -11,10 +11,12 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.nekotori.config.FileBasedBotConfiguration;
 import org.nekotori.log.TerminalLogger;
+import reactor.core.publisher.Flux;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.util.LinkedList;
+import java.util.Optional;
 
 public class ChatGpt implements ChatBot {
 
@@ -24,9 +26,7 @@ public class ChatGpt implements ChatBot {
     private static final String MESSAGE = "messages";
     private LinkedList<HISTORY> history;
     private final String privateKey;
-
     private final String proxyHost;
-
     private final int proxyPort;
 
     public ChatGpt(){
@@ -44,27 +44,50 @@ public class ChatGpt implements ChatBot {
     }
 
     @Override
-    public String getReply(String userInput) {
-        TerminalLogger.log("gpt input: "+userInput);
-        history.add(new HISTORY(HISTORY.USER,userInput));
-        if (history.size()>10){
-            history.removeFirst();
-        }
-        JSONObject body = new JSONObject();
-        body.putOnce(MODEL,MODEL_VALUE);
-        body.putOnce(MESSAGE,history);
-        return getResponse(body);
+    public Flux<String> getReply(String userInput) {
+        return Flux.deferContextual((contextView) -> getResponse(userInput)
+                        .onErrorResume(e -> Flux.just(String.format((String) contextView.get(ERROR_KEY),
+                                Optional.ofNullable(e.getCause())
+                                        .map(Throwable::getMessage)
+                                        .orElse(e.getMessage()))))
+        );
     }
 
     @NotNull
-    private String getResponse(JSONObject body) {
-        String res = HttpUtil.createPost(END_POINT)
-                .setProxy(new Proxy(Proxy.Type.HTTP, InetSocketAddress.createUnresolved(proxyHost,proxyPort)))
-                .header(Header.CONTENT_TYPE, ContentType.JSON.getValue())
-                .header(Header.AUTHORIZATION, "Bearer " + privateKey)
-                .body(body.toString())
-                .execute()
-                .body();
+    private Flux<String> getResponse(String userInput) {
+        TerminalLogger.log("gpt input: "+userInput);
+        modifyHistory(userInput);
+        String body = prepareGptRequestBody();
+        return doRequest(body).map(ChatGpt::resolveGptResponseStr);
+    }
+
+    private void modifyHistory(String userInput) {
+        history.addLast(new HISTORY(HISTORY.USER, userInput));
+        if (history.size()>4){history.removeFirst();}
+    }
+
+    @NotNull
+    private String prepareGptRequestBody() {
+        JSONObject body = new JSONObject();
+        body.putOnce(MODEL,MODEL_VALUE);
+        body.putOnce(MESSAGE,history);
+        return body.toString();
+    }
+
+    private Flux<String> doRequest(String input){
+        return Flux.push(sink ->
+                sink.next(HttpUtil.createPost(END_POINT)
+                        .setProxy(new Proxy(Proxy.Type.HTTP, InetSocketAddress.createUnresolved(proxyHost, proxyPort)))
+                        .header(Header.CONTENT_TYPE, ContentType.JSON.getValue())
+                        .header(Header.AUTHORIZATION, "Bearer " + privateKey)
+                        .body(input)
+                        .execute()
+                        .body()));
+    }
+
+    @NotNull
+    private static String resolveGptResponseStr(String res) {
+        TerminalLogger.log(res);
         JSONArray choices = JSONUtil.parseObj(res).getJSONArray("choices");
         JSONObject choice = choices.getJSONObject(0);
         JSONObject message = choice.getJSONObject("message");

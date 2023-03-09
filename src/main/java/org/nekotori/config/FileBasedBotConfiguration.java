@@ -19,7 +19,7 @@ public class FileBasedBotConfiguration {
     @Getter
     public static FileBasedBotConfiguration INSTANCE = null;
 
-    public static final String DEFAULT_CONFIG_LOCATION = "/usr/local/bot/config.yaml";
+    public static final String DEFAULT_CONFIG_LOCATION = "bot/config.yaml";
 
     static  {
         BufferedInputStream configStream = FileUtil.getInputStream(new File(DEFAULT_CONFIG_LOCATION));

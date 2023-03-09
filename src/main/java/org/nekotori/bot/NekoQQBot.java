@@ -17,15 +17,15 @@ public class NekoQQBot implements NekoBot<BotEvent> {
 
 
     public NekoQQBot(){
-        loadConfig("/usr/local/bot/config.yaml");
+        init("bot/config.yaml");
         Executors.newSingleThreadExecutor().execute(this::runBot);
     }
     public NekoQQBot(String configPath) {
-        loadConfig(configPath);
+        init(configPath);
         Executors.newSingleThreadExecutor().execute(this::runBot);
     }
 
-    public void loadConfig(String path){
+    private void init(String path){
         FileBasedBotConfiguration config = FileBasedBotConfiguration.resolveFile(new File(path));
         BotConfiguration botConfiguration = new BotConfiguration();
         botConfiguration.fileBasedDeviceInfo(config.getDeviceInfo());
@@ -37,7 +37,7 @@ public class NekoQQBot implements NekoBot<BotEvent> {
         nekoBot = BotFactory.INSTANCE.newBot(account, passwd, botConfiguration);
     }
 
-    public void runBot(){
+    private void runBot(){
         nekoBot.login();
         nekoBot.join();
     }
