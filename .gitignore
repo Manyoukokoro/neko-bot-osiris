@@ -41,3 +41,4 @@ build/
 /bot/
 /.idea/
 /cache/
+/.gradle/

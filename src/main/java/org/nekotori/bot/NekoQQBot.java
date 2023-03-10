@@ -8,6 +8,7 @@ import net.mamoe.mirai.utils.BotConfiguration;
 import org.nekotori.config.FileBasedBotConfiguration;
 import org.nekotori.event.NekoMessageEvent;
 import org.nekotori.event.QQMessageEvent;
+import org.nekotori.fix.FixProtocolVersion;
 import org.nekotori.log.TerminalLogger;
 import reactor.core.publisher.Flux;
 
@@ -32,6 +33,7 @@ public class NekoQQBot implements NekoBot<BotEvent, MessageEvent> {
         FileBasedBotConfiguration config = FileBasedBotConfiguration.resolveFile(new File(path));
         BotConfiguration botConfiguration = new BotConfiguration();
         botConfiguration.fileBasedDeviceInfo(config.getDeviceInfo());
+        FixProtocolVersion.update();
         botConfiguration.setProtocol(BotConfiguration.MiraiProtocol.ANDROID_PAD);
         botConfiguration.setBotLoggerSupplier(b -> new TerminalLogger());
         botConfiguration.setNetworkLoggerSupplier(b -> new TerminalLogger());
