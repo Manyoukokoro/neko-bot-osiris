@@ -1,0 +1,10 @@
+deviceInfo: /usr/local/bot/deviceInfo.json
+qq:
+  account:
+  passwd:
+discord:
+  token:
+  proxyHost: 127.0.0.1
+  proxyPort: 7890
+admin:
+gptKey:

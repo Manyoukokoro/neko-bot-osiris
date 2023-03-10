@@ -25,7 +25,7 @@ public class ChatGpt implements ChatBot {
     private static final String MODEL = "model";
     private static final String MODEL_VALUE = "gpt-3.5-turbo";
     private static final String MESSAGE = "messages";
-    private LinkedList<HISTORY> history;
+    private final LinkedList<HISTORY> history;
 
     @Setter
     private String description;
@@ -116,7 +116,6 @@ public class ChatGpt implements ChatBot {
         static final String USER = "user";
 
         static final String ASSISTANT = "assistant";
-
         static final String SYSTEM = "system";
 
         private String role;

@@ -3,6 +3,7 @@ package org.nekotori.event;
 import reactor.core.publisher.Flux;
 
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public abstract class NekoMessageEvent<E> {
 
@@ -11,8 +12,16 @@ public abstract class NekoMessageEvent<E> {
     public Flux<E> flux() {
         return flux;
     }
+    public abstract NekoMessageEvent<E> onCommand(String command);
 
-    public abstract Flux<E> onCommand(String command, Function<E, String> messageResolver);
+    public NekoMessageEvent<E> onCommand(Predicate<E> commandSelector){
+        this.flux = flux.filter(commandSelector);
+        return this;
+    }
 
-    public abstract Flux<E> onCommand(String command);
+    public NekoMessageEvent<E> onSenderIdentity(Predicate<E> senderIdentitySelector){
+        this.flux = flux.filter(senderIdentitySelector);
+        return this;
+    }
+
 }

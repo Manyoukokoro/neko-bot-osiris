@@ -17,7 +17,7 @@ import java.io.File;
 public class FileBasedBotConfiguration {
 
     @Getter
-    public static FileBasedBotConfiguration INSTANCE = null;
+    public static FileBasedBotConfiguration INSTANCE;
 
     public static final String DEFAULT_CONFIG_LOCATION = "bot/config.yaml";
 

@@ -7,12 +7,16 @@ import org.nekotori.bot.NekoBot;
 import org.nekotori.bot.NekoQQBot;
 import org.nekotori.gpt.GptPersistence;
 import org.nekotori.handler.GptGroupMessageHandler;
+import org.nekotori.type.QQIdentityType;
 
 public class Application {
     public static void main(String[] args) {
         NekoBot<BotEvent, MessageEvent> nekoBot = new NekoQQBot();
+
         nekoBot.onMessageEvent(GroupMessageEvent.class)
                 .onCommand("set")
+                .onSenderIdentity(QQIdentityType.GROUP_ADMIN)
+                .flux()
                 .subscribe(event->{
                     String content = event.getMessage().contentToString();
                     String set = content.replaceFirst("set", "").trim();
@@ -22,6 +26,8 @@ public class Application {
 
         nekoBot.onMessageEvent(GroupMessageEvent.class)
                 .onCommand("gpt")
+                .onSenderIdentity(QQIdentityType.GROUP_NORMAL)
+                .flux()
                 .subscribe(event-> new GptGroupMessageHandler().handle(event));
     }
 }

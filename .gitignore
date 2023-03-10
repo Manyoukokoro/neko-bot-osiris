@@ -6,7 +6,9 @@ target/
 ### IntelliJ IDEA ###
 .idea/
 cache/
-docker/
+docker/neko-bot-osiris-1.0.0-jar-with-dependencies.jar
+docker/config.yaml
+gradle
 deviceInfo.json
 *.iws
 *.iml

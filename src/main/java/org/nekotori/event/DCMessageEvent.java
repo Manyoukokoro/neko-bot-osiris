@@ -1,7 +1,6 @@
 package org.nekotori.event;
 
 
-import discord4j.core.event.domain.Event;
 import discord4j.core.event.domain.message.MessageEvent;
 import reactor.core.publisher.Flux;
 
@@ -14,13 +13,9 @@ public class DCMessageEvent<E extends MessageEvent> extends NekoMessageEvent<E> 
         eMessageEvent.flux = flux;
         return eMessageEvent;
     }
-    @Override
-    public Flux<E> onCommand(String command, Function<E, String> messageResolver) {
-        return null;
-    }
 
     @Override
-    public Flux<E> onCommand(String command) {
-        return null;
+    public NekoMessageEvent<E> onCommand(String command) {
+        return this;
     }
 }
