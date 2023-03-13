@@ -1,7 +1,9 @@
 package org.nekotori.event;
 
 import net.mamoe.mirai.event.events.MessageEvent;
+import net.mamoe.mirai.message.data.MessageChain;
 import reactor.core.publisher.Flux;
+
 
 public class QQMessageEvent<E extends MessageEvent> extends NekoMessageEvent<E> {
 
@@ -21,4 +23,14 @@ public class QQMessageEvent<E extends MessageEvent> extends NekoMessageEvent<E> 
         });
         return this;
     }
+
+    @Override
+    public NekoMessageEvent<E> onMessageType(Class<?> clazz) {
+        this.flux = flux.filter( event->{
+            MessageChain message = event.getMessage();
+            return message.stream().anyMatch(mes -> mes.getClass() == clazz);
+        });
+        return this;
+    }
+
 }

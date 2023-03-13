@@ -34,7 +34,7 @@ public class NekoQQBot implements NekoBot<BotEvent, MessageEvent> {
         BotConfiguration botConfiguration = new BotConfiguration();
         botConfiguration.fileBasedDeviceInfo(config.getDeviceInfo());
         FixProtocolVersion.update();
-        botConfiguration.setProtocol(BotConfiguration.MiraiProtocol.ANDROID_PAD);
+        botConfiguration.setProtocol(BotConfiguration.MiraiProtocol.MACOS);
         botConfiguration.setBotLoggerSupplier(b -> new TerminalLogger());
         botConfiguration.setNetworkLoggerSupplier(b -> new TerminalLogger());
         Long account = config.getQq().getAccount();
@@ -57,5 +57,10 @@ public class NekoQQBot implements NekoBot<BotEvent, MessageEvent> {
     @Override
     public <T extends MessageEvent> NekoMessageEvent<T> onMessageEvent(Class<T> eventType) {
         return QQMessageEvent.of(onEvent(eventType));
+    }
+
+    @Override
+    public String getId() {
+        return String.valueOf(nekoBot.getId());
     }
 }

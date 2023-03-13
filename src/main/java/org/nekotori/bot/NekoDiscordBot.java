@@ -4,13 +4,11 @@ import discord4j.common.ReactorResources;
 import discord4j.core.DiscordClient;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.Event;
-import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.event.domain.message.MessageEvent;
 import discord4j.gateway.GatewayReactorResources;
 import io.netty.util.internal.StringUtil;
 import org.nekotori.config.FileBasedBotConfiguration;
 import org.nekotori.config.FileBasedBotConfiguration.Discord;
-import org.nekotori.event.DCMessageEvent;
 import org.nekotori.event.NekoMessageEvent;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -65,6 +63,11 @@ public class NekoDiscordBot implements NekoBot<Event, MessageEvent> {
 
     @Override
     public <T extends MessageEvent> NekoMessageEvent<T> onMessageEvent(Class<T> eventType) {
+        return null;
+    }
+
+    @Override
+    public String getId() {
         return null;
     }
 }

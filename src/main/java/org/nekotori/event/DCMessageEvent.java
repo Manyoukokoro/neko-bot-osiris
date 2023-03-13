@@ -16,4 +16,9 @@ public class DCMessageEvent<E extends MessageEvent> extends NekoMessageEvent<E> 
     public NekoMessageEvent<E> onCommand(String command) {
         return this;
     }
+
+    @Override
+    public NekoMessageEvent<E> onMessageType(Class<?> clazz) {
+        return null;
+    }
 }
