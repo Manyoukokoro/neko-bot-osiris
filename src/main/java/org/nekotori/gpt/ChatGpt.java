@@ -114,7 +114,6 @@ public class ChatGpt implements ChatBot {
     @Getter
     private static class HISTORY{
         static final String USER = "user";
-
         static final String ASSISTANT = "assistant";
         static final String SYSTEM = "system";
 

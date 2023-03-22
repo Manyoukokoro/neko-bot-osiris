@@ -39,6 +39,13 @@ public class GptGroupMessageHandler implements MessageHandler<GroupMessageEvent>
     }
 
 
+    public void reset(GroupMessageEvent event){
+        Member sender = event.getSender();
+        Optional<ChatBot> botOp = Optional.ofNullable(targetMap.get(sender));
+        botOp.ifPresent(ChatBot::refresh);
+    }
+
+
     private Optional<String> analysisTextContent(MessageChain messages){
         List<String> prom = messages.stream()
                 .map(SingleMessage::contentToString)
@@ -52,4 +59,5 @@ public class GptGroupMessageHandler implements MessageHandler<GroupMessageEvent>
         return prom.stream()
                 .reduce(String::concat);
     }
+
 }
