@@ -24,7 +24,7 @@ public class DCMessageEvent<E extends MessageCreateEvent> extends NekoMessageEve
     }
 
     @Override
-    public NekoMessageEvent<E> onMessageType(Class<?> clazz) {
+    public NekoMessageEvent<E> onVerify(Class<?> clazz) {
         this.flux = flux.filter(event -> event.getClass() == clazz);
         return this;
     }

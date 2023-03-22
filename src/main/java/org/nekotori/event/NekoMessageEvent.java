@@ -13,7 +13,7 @@ public abstract class NekoMessageEvent<E> {
     }
     public abstract NekoMessageEvent<E> onCommand(String command);
 
-    public abstract NekoMessageEvent<E> onMessageType(Class<?> clazz);
+    public abstract NekoMessageEvent<E> onVerify(Class<?> clazz);
 
     public NekoMessageEvent<E> onCommand(Predicate<E> commandSelector){
         this.flux = flux.filter(commandSelector);
@@ -25,10 +25,9 @@ public abstract class NekoMessageEvent<E> {
         return this;
     }
 
-    public NekoMessageEvent<E> onMessageType(Predicate<E> messageTypeSelector){
+    public NekoMessageEvent<E> onVerify(Predicate<E> messageTypeSelector){
         this.flux = flux.filter(messageTypeSelector);
         return this;
     }
-
 
 }

@@ -25,7 +25,7 @@ public class QQMessageEvent<E extends MessageEvent> extends NekoMessageEvent<E> 
     }
 
     @Override
-    public NekoMessageEvent<E> onMessageType(Class<?> clazz) {
+    public NekoMessageEvent<E> onVerify(Class<?> clazz) {
         this.flux = flux.filter( event->{
             MessageChain message = event.getMessage();
             return message.stream().anyMatch(mes -> mes.getClass() == clazz);

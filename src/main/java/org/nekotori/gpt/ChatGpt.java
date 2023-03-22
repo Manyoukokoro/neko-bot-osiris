@@ -3,7 +3,6 @@ package org.nekotori.gpt;
 import cn.hutool.http.ContentType;
 import cn.hutool.http.Header;
 import cn.hutool.http.HttpUtil;
-import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import lombok.AllArgsConstructor;
@@ -98,10 +97,12 @@ public class ChatGpt implements ChatBot {
     @NotNull
     private static String resolveGptResponseStr(String res) {
         TerminalLogger.log(res);
-        JSONArray choices = JSONUtil.parseObj(res).getJSONArray("choices");
-        JSONObject choice = choices.getJSONObject(0);
-        JSONObject message = choice.getJSONObject("message");
-        return message.getStr("content").trim();
+        return JSONUtil.parseObj(res)
+                .getJSONArray("choices")
+                .getJSONObject(0)
+                .getJSONObject("message")
+                .getStr("content")
+                .trim();
     }
 
     @Override

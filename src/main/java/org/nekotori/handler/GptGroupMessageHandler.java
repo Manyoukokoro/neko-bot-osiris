@@ -18,7 +18,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class GptGroupMessageHandler implements MessageHandler<GroupMessageEvent> {
+public class GptGroupMessageHandler extends GroupAtMeHandler {
     private static Map<Member,ChatBot> targetMap = new HashMap<>();
 
     private static final String ERROR_TEMPLATE = "ops! please contact administrator, the error info is gpt error: %s";
@@ -43,6 +43,11 @@ public class GptGroupMessageHandler implements MessageHandler<GroupMessageEvent>
         Member sender = event.getSender();
         Optional<ChatBot> botOp = Optional.ofNullable(targetMap.get(sender));
         botOp.ifPresent(ChatBot::refresh);
+    }
+
+    public void resetHardly(GroupMessageEvent event){
+        Member sender = event.getSender();
+        targetMap.remove(sender);
     }
 
 
