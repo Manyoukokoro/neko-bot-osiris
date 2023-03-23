@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class GptGroupMessageHandler extends GroupAtMeHandler {
-    private static Map<Member,ChatBot> targetMap = new HashMap<>();
+    private static final Map<Member,ChatBot> targetMap = new HashMap<>();
 
     private static final String ERROR_TEMPLATE = "ops! please contact administrator, the error info is gpt error: %s";
     @Override
@@ -38,6 +38,14 @@ public class GptGroupMessageHandler extends GroupAtMeHandler {
         targetMap.putIfAbsent(message.getSender(),chatBot);
     }
 
+    public void setGptCharacter(GroupMessageEvent event) {
+        String content = event.getMessage().contentToString();
+        String set = content.replaceFirst("set", "").trim();
+        GptPersistence.saveDescription(event.getSubject().getId(),set);
+        resetHardly(event);
+        event.getSubject().sendMessage("success!");
+    }
+
 
     public void reset(GroupMessageEvent event){
         Member sender = event.getSender();
@@ -45,7 +53,10 @@ public class GptGroupMessageHandler extends GroupAtMeHandler {
         botOp.ifPresent(ChatBot::refresh);
     }
 
-    public void resetHardly(GroupMessageEvent event){
+
+
+
+    private void resetHardly(GroupMessageEvent event){
         Member sender = event.getSender();
         targetMap.remove(sender);
     }
@@ -61,8 +72,7 @@ public class GptGroupMessageHandler extends GroupAtMeHandler {
                 .collect(Collectors.toList());
         // this is command
         prom.remove(0);
-        return prom.stream()
-                .reduce(String::concat);
+        return prom.stream().reduce(String::concat);
     }
 
 }

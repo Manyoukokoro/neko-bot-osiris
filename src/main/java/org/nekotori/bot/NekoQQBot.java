@@ -9,7 +9,7 @@ import org.nekotori.config.FileBasedBotConfiguration;
 import org.nekotori.event.NekoMessageEvent;
 import org.nekotori.event.QQMessageEvent;
 import org.nekotori.fix.FixProtocolVersion;
-import org.nekotori.log.TerminalLogger;
+import org.nekotori.log.MiraiInnerLog4jLogger;
 import reactor.core.publisher.Flux;
 
 import java.io.File;
@@ -35,8 +35,8 @@ public class NekoQQBot implements NekoBot<BotEvent, MessageEvent> {
         botConfiguration.fileBasedDeviceInfo(config.getDeviceInfo());
         FixProtocolVersion.update();
         botConfiguration.setProtocol(BotConfiguration.MiraiProtocol.MACOS);
-        botConfiguration.setBotLoggerSupplier(b -> new TerminalLogger());
-        botConfiguration.setNetworkLoggerSupplier(b -> new TerminalLogger());
+        botConfiguration.setBotLoggerSupplier(b -> new MiraiInnerLog4jLogger());
+        botConfiguration.setNetworkLoggerSupplier(b -> new MiraiInnerLog4jLogger());
         Long account = config.getQq().getAccount();
         String passwd = config.getQq().getPasswd();
         nekoBot = BotFactory.INSTANCE.newBot(account, passwd, botConfiguration);

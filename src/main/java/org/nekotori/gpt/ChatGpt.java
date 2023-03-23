@@ -2,22 +2,29 @@ package org.nekotori.gpt;
 
 import cn.hutool.http.ContentType;
 import cn.hutool.http.Header;
-import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import io.netty.handler.codec.http.HttpMethod;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.nekotori.config.FileBasedBotConfiguration;
-import org.nekotori.log.TerminalLogger;
+import org.nekotori.resource.ReactorResources;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.netty.ByteBufFlux;
+import reactor.netty.http.client.HttpClient;
+import reactor.netty.transport.ProxyProvider;
 
 import java.net.InetSocketAddress;
-import java.net.Proxy;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.Optional;
+import java.util.function.Supplier;
 
+@Slf4j
 public class ChatGpt implements ChatBot {
 
     private static final String END_POINT = "https://api.openai.com/v1/chat/completions";
@@ -50,8 +57,7 @@ public class ChatGpt implements ChatBot {
 
     @Override
     public Flux<String> getReply(String userInput) {
-        return Flux.deferContextual((contextView) -> getResponse(userInput)
-                        .onErrorResume(e ->
+        return Flux.deferContextual((contextView) -> getResponse(userInput).onErrorResume(e ->
                                 Flux.just(String.format((String) contextView.get(ERROR_KEY),
                                 Optional.ofNullable(e.getCause())
                                         .map(Throwable::getMessage)
@@ -61,7 +67,7 @@ public class ChatGpt implements ChatBot {
 
     @NotNull
     private Flux<String> getResponse(String userInput) {
-        TerminalLogger.log("gpt input: "+userInput);
+        log.info("gpt input: {}", userInput);
         modifyHistory(userInput);
         String body = prepareGptRequestBody();
         return doRequest(body).map(ChatGpt::resolveGptResponseStr);
@@ -79,24 +85,27 @@ public class ChatGpt implements ChatBot {
         LinkedList<HISTORY> copyOfHistory = new LinkedList<>(history);
         copyOfHistory.addFirst(new HISTORY(HISTORY.SYSTEM,description));
         body.putOnce(MESSAGE,copyOfHistory);
-        TerminalLogger.log(body.toStringPretty());
+        log.info(body.toStringPretty());
         return body.toString();
     }
 
     private Flux<String> doRequest(String input){
-        return Flux.push(sink ->
-                sink.next(HttpUtil.createPost(END_POINT)
-                        .setProxy(new Proxy(Proxy.Type.HTTP, InetSocketAddress.createUnresolved(proxyHost, proxyPort)))
-                        .header(Header.CONTENT_TYPE, ContentType.JSON.getValue())
-                        .header(Header.AUTHORIZATION, "Bearer " + privateKey)
-                        .body(input)
-                        .execute()
-                        .body()));
+        Supplier<HttpClient> client = ReactorResources.DEFAULT_HTTP_CLIENT;
+        return client.get().proxy(spec->spec.type(ProxyProvider.Proxy.SOCKS5).address(InetSocketAddress.createUnresolved(proxyHost,proxyPort)))
+                            .baseUrl(END_POINT)
+                            .headersWhen(headers-> Mono.create(headerSink -> {
+                                headers.add(Header.CONTENT_TYPE.name(), ContentType.JSON.getValue());
+                                headers.add(Header.AUTHORIZATION.name(),"Bearer " + privateKey);
+                                headerSink.success(headers);
+                            }))
+                            .request(HttpMethod.POST)
+                            .send(ByteBufFlux.fromString(Flux.just(input)))
+                            .response( (resp,flux) ->  flux.asString(StandardCharsets.UTF_8));
     }
 
     @NotNull
     private static String resolveGptResponseStr(String res) {
-        TerminalLogger.log(res);
+        log.info(res);
         return JSONUtil.parseObj(res)
                 .getJSONArray("choices")
                 .getJSONObject(0)
@@ -117,9 +126,7 @@ public class ChatGpt implements ChatBot {
         static final String USER = "user";
         static final String ASSISTANT = "assistant";
         static final String SYSTEM = "system";
-
         private String role;
-
         private String content;
     }
 }

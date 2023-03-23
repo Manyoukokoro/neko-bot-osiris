@@ -1,12 +1,12 @@
 package org.nekotori.command;
 
+import lombok.extern.slf4j.Slf4j;
 import org.nekotori.bot.NekoBot;
-import org.nekotori.log.TerminalLogger;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+@Slf4j
 public class CommandRegistry {
 
     public static void registry(NekoBot<?,?> bot, String className){
@@ -16,13 +16,27 @@ public class CommandRegistry {
             Constructor<?> constructor = aClass.getConstructor();
             Object o = constructor.newInstance();
             handle.invoke(o, bot);
-            TerminalLogger.log("registry command success! --- "+className);
+            log.info("registry command success! --- {}", className);
         }catch (ClassNotFoundException cnfe){
-            TerminalLogger.log("cannot find command: "+ className);
+            log.error("cannot find command: {}", className);
         }catch (NoSuchMethodException nsme){
-            TerminalLogger.log("loaded class is not a command: "+ className);
+            log.error("loaded class is not a command: {}", className);
         } catch (Exception e) {
-            TerminalLogger.log("load command failed: "+ className);
+            log.error("load command failed: {}", className);
+        }
+    }
+
+    public static void registry(NekoBot<?,?> bot, Class<?> clazz){
+        try{
+            Method handle = clazz.getMethod("handle",NekoBot.class);
+            Constructor<?> constructor = clazz.getConstructor();
+            Object o = constructor.newInstance();
+            handle.invoke(o, bot);
+            log.info("registry command success! --- {}", clazz.getName());
+        }catch (NoSuchMethodException nsme){
+            log.error("loaded class is not a command: {}", clazz.getName());
+        } catch (Exception e) {
+            log.error("load command failed: {}", clazz.getName());
         }
     }
 }

@@ -2,66 +2,68 @@ package org.nekotori.log;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.utils.MiraiLoggerPlatformBase;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class TerminalLogger extends MiraiLoggerPlatformBase {
+@Slf4j
+public class MiraiInnerLog4jLogger extends MiraiLoggerPlatformBase {
 
     public static void log(String s){
-        System.out.println(new Log(Level.INFO,s,LocalDateTime.now()));
+        log.info(s);
     }
 
     @Override
     protected void debug0(@Nullable String s, @Nullable Throwable throwable) {
-        System.out.println(new Log(Level.DEBUG, s, LocalDateTime.now()));
+        log.debug(s,throwable);
     }
 
     @Override
     protected void error0(@Nullable String s, @Nullable Throwable throwable) {
-        System.out.println(new Log(Level.ERROR, s, LocalDateTime.now()));
+        log.error(s,throwable);
     }
 
     @Override
     protected void info0(@Nullable String s, @Nullable Throwable throwable) {
-        System.out.println(new Log(Level.INFO, s, LocalDateTime.now()));
+        log.info(s,throwable);
     }
 
     @Override
     protected void verbose0(@Nullable String s, @Nullable Throwable throwable) {
-        System.out.println(new Log(Level.INFO, s, LocalDateTime.now()));
+        log.info(s,throwable);
     }
 
     @Override
     protected void warning0(@Nullable String s, @Nullable Throwable throwable) {
-        System.out.println(new Log(Level.WARN, s, LocalDateTime.now()));
+        log.warn(s,throwable);
     }
 
     @Override
     protected void verbose0(@Nullable String message) {
-        System.out.println(new Log(Level.INFO, message, LocalDateTime.now()));
+        log.warn(message);
     }
 
     @Override
     protected void debug0(@Nullable String message) {
-        System.out.println(new Log(Level.DEBUG, message, LocalDateTime.now()));
+        log.debug(message);
     }
 
     @Override
     protected void error0(@Nullable String message) {
-        System.out.println(new Log(Level.ERROR, message, LocalDateTime.now()));
+        log.error(message);
     }
 
     @Override
     protected void info0(@Nullable String message) {
-        System.out.println(new Log(Level.INFO, message, LocalDateTime.now()));
+        log.info(message);
     }
 
     @Override
     protected void warning0(@Nullable String message) {
-        System.out.println(new Log(Level.WARN, message, LocalDateTime.now()));
+        log.warn(message);
     }
 
 

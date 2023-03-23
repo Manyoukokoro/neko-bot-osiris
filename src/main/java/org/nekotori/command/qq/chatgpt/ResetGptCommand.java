@@ -1,12 +1,13 @@
-package org.nekotori.command.qq;
+package org.nekotori.command.qq.chatgpt;
 
 import net.mamoe.mirai.event.Event;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.events.MessageEvent;
 import org.nekotori.bot.NekoBot;
+import org.nekotori.command.qq.NekoQQBotCommand;
 import org.nekotori.handler.GptGroupMessageHandler;
 
-public class ReSetGptCommand implements NekoQQBotCommand {
+public class ResetGptCommand implements NekoQQBotCommand {
 
     GptGroupMessageHandler gptGroupMessageHandler = new GptGroupMessageHandler();
 
