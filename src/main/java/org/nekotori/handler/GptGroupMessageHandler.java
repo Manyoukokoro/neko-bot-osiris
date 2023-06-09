@@ -8,14 +8,9 @@ import net.mamoe.mirai.message.data.QuoteReply;
 import net.mamoe.mirai.message.data.SingleMessage;
 import org.nekotori.gpt.ChatBot;
 import org.nekotori.gpt.ChatGpt;
-import org.nekotori.gpt.GptPersistence;
+import org.nekotori.persistence.GptPersistence;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class GptGroupMessageHandler extends GroupAtMeHandler {
@@ -24,10 +19,10 @@ public class GptGroupMessageHandler extends GroupAtMeHandler {
     private static final String ERROR_TEMPLATE = "ops! please contact administrator, the error info is gpt error: %s";
     @Override
     public void handle(GroupMessageEvent message) {
-        String description = GptPersistence.getDescription(message.getGroup().getId());
-        ChatBot chatBot = Optional.ofNullable(targetMap.get(message.getSender()))
+        var description = GptPersistence.getDescription(message.getGroup().getId());
+        var chatBot = Optional.ofNullable(targetMap.get(message.getSender()))
                 .orElse(new ChatGpt(description));
-        Optional<String> s = analysisTextContent(message.getMessage());
+        var s = analysisTextContent(message.getMessage());
         s.ifPresent( content-> chatBot.getReply(content)
                 .contextWrite((ctx)->ctx.put(ChatBot.ERROR_KEY,ERROR_TEMPLATE))
                 .subscribe(reply-> message.getSubject().sendMessage(new MessageChainBuilder()
@@ -39,8 +34,8 @@ public class GptGroupMessageHandler extends GroupAtMeHandler {
     }
 
     public void setGptCharacter(GroupMessageEvent event) {
-        String content = event.getMessage().contentToString();
-        String set = content.replaceFirst("set", "").trim();
+        var content = event.getMessage().contentToString();
+        var set = content.replaceFirst("set", "").trim();
         GptPersistence.saveDescription(event.getSubject().getId(),set);
         resetHardly(event);
         event.getSubject().sendMessage("success!");
@@ -48,8 +43,8 @@ public class GptGroupMessageHandler extends GroupAtMeHandler {
 
 
     public void reset(GroupMessageEvent event){
-        Member sender = event.getSender();
-        Optional<ChatBot> botOp = Optional.ofNullable(targetMap.get(sender));
+        var sender = event.getSender();
+        var botOp = Optional.ofNullable(targetMap.get(sender));
         botOp.ifPresent(ChatBot::refresh);
     }
 
@@ -57,13 +52,13 @@ public class GptGroupMessageHandler extends GroupAtMeHandler {
 
 
     private void resetHardly(GroupMessageEvent event){
-        Member sender = event.getSender();
+        var sender = event.getSender();
         targetMap.remove(sender);
     }
 
 
     private Optional<String> analysisTextContent(MessageChain messages){
-        List<String> prom = messages.stream()
+        var prom = messages.stream()
                 .map(SingleMessage::contentToString)
                 .map(String::trim)
                 .flatMap(s -> Arrays.stream(s.split(" ")))

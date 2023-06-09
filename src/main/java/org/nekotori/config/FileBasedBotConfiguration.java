@@ -22,12 +22,12 @@ public class FileBasedBotConfiguration {
     public static final String DEFAULT_CONFIG_LOCATION = "bot/config.yaml";
 
     static  {
-        BufferedInputStream configStream = FileUtil.getInputStream(new File(DEFAULT_CONFIG_LOCATION));
+        var configStream = FileUtil.getInputStream(new File(DEFAULT_CONFIG_LOCATION));
         INSTANCE = YamlUtil.load(configStream, FileBasedBotConfiguration.class);
     }
 
     public static FileBasedBotConfiguration resolveFile(File file){
-        BufferedInputStream configStream = FileUtil.getInputStream(file);
+        var configStream = FileUtil.getInputStream(file);
         INSTANCE = YamlUtil.load(configStream, FileBasedBotConfiguration.class);
         return INSTANCE;
     }

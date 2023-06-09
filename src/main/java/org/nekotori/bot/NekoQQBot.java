@@ -30,15 +30,15 @@ public class NekoQQBot implements NekoBot<BotEvent, MessageEvent> {
     }
 
     private void init(String path){
-        FileBasedBotConfiguration config = FileBasedBotConfiguration.resolveFile(new File(path));
-        BotConfiguration botConfiguration = new BotConfiguration();
+        var config = FileBasedBotConfiguration.resolveFile(new File(path));
+        var botConfiguration = new BotConfiguration();
         botConfiguration.fileBasedDeviceInfo(config.getDeviceInfo());
         FixProtocolVersion.update();
         botConfiguration.setProtocol(BotConfiguration.MiraiProtocol.MACOS);
         botConfiguration.setBotLoggerSupplier(b -> new MiraiInnerLog4jLogger());
         botConfiguration.setNetworkLoggerSupplier(b -> new MiraiInnerLog4jLogger());
-        Long account = config.getQq().getAccount();
-        String passwd = config.getQq().getPasswd();
+        var account = config.getQq().getAccount();
+        var passwd = config.getQq().getPasswd();
         nekoBot = BotFactory.INSTANCE.newBot(account, passwd, botConfiguration);
     }
 

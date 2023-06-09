@@ -5,7 +5,6 @@ import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.events.MessageEvent;
 import org.nekotori.bot.NekoBot;
 import org.nekotori.command.qq.NekoQQBotCommand;
-import org.nekotori.gpt.GptPersistence;
 import org.nekotori.handler.GptGroupMessageHandler;
 import org.nekotori.type.QQIdentityType;
 

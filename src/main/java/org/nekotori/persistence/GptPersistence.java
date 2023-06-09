@@ -1,4 +1,4 @@
-package org.nekotori.gpt;
+package org.nekotori.persistence;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.json.JSONObject;
@@ -14,7 +14,7 @@ public class GptPersistence {
 
     public static void saveDescription(Long id, String desc) {
         init();
-        String config = FileUtil.readUtf8String(new File(descLoc));
+        var config = FileUtil.readUtf8String(new File(descLoc));
         Optional.ofNullable(config)
                 .ifPresent(s -> {
                     JSONObject entries = JSONUtil.parseObj(s);
@@ -32,7 +32,7 @@ public class GptPersistence {
 
     public static String getDescription(Long id) {
         init();
-        String config = FileUtil.readUtf8String(new File(descLoc));
+        var config = FileUtil.readUtf8String(new File(descLoc));
         return Optional.ofNullable(config)
                 .map(s -> {
                     JSONObject entries = JSONUtil.parseObj(s);

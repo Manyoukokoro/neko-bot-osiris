@@ -3,18 +3,15 @@ package org.nekotori.command;
 import lombok.extern.slf4j.Slf4j;
 import org.nekotori.bot.NekoBot;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-
 @Slf4j
 public class CommandRegistry {
 
     public static void registry(NekoBot<?,?> bot, String className){
         try {
-            Class<?> aClass = CommandRegistry.class.getClassLoader().loadClass(className);
-            Method handle = aClass.getMethod("handle",NekoBot.class);
-            Constructor<?> constructor = aClass.getConstructor();
-            Object o = constructor.newInstance();
+            var aClass = CommandRegistry.class.getClassLoader().loadClass(className);
+            var handle = aClass.getMethod("handle",NekoBot.class);
+            var constructor = aClass.getConstructor();
+            var o = constructor.newInstance();
             handle.invoke(o, bot);
             log.info("registry command success! --- {}", className);
         }catch (ClassNotFoundException cnfe){
@@ -28,9 +25,9 @@ public class CommandRegistry {
 
     public static void registry(NekoBot<?,?> bot, Class<?> clazz){
         try{
-            Method handle = clazz.getMethod("handle",NekoBot.class);
-            Constructor<?> constructor = clazz.getConstructor();
-            Object o = constructor.newInstance();
+            var handle = clazz.getMethod("handle",NekoBot.class);
+            var constructor = clazz.getConstructor();
+            var o = constructor.newInstance();
             handle.invoke(o, bot);
             log.info("registry command success! --- {}", clazz.getName());
         }catch (NoSuchMethodException nsme){

@@ -8,7 +8,7 @@ import reactor.core.publisher.Flux;
 public class DCMessageEvent<E extends MessageCreateEvent> extends NekoMessageEvent<E> {
 
     public static <E extends MessageCreateEvent> NekoMessageEvent<E> of(Flux<E> flux){
-        NekoMessageEvent<E> eMessageEvent = new DCMessageEvent<>();
+        var eMessageEvent = new DCMessageEvent<E>();
         eMessageEvent.flux = flux;
         return eMessageEvent;
     }

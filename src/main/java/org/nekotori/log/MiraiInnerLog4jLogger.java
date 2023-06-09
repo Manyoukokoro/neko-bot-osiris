@@ -72,22 +72,4 @@ public class MiraiInnerLog4jLogger extends MiraiLoggerPlatformBase {
     public String getIdentity() {
         return "NekoQQBot";
     }
-
-    @Data
-    @AllArgsConstructor
-    static class Log{
-        private Level level;
-        private String info;
-        private LocalDateTime time;
-
-        public String toString(){
-            return time.format(DateTimeFormatter.BASIC_ISO_DATE)+">>"
-                    +level.name()+">>"
-                    +info;
-        }
-    }
-
-    static enum Level{
-        INFO,ERROR,WARN,DEBUG;
-    }
 }

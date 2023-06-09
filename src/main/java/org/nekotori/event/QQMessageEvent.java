@@ -10,7 +10,7 @@ public class QQMessageEvent<E extends MessageEvent> extends NekoMessageEvent<E> 
 
 
     public static <E extends MessageEvent> NekoMessageEvent<E> of(Flux<E> flux){
-        NekoMessageEvent<E> eMessageEvent = new QQMessageEvent<>();
+        var eMessageEvent = new QQMessageEvent<E>();
         eMessageEvent.flux = flux;
         return eMessageEvent;
     }
@@ -18,7 +18,7 @@ public class QQMessageEvent<E extends MessageEvent> extends NekoMessageEvent<E> 
     @Override
     public NekoMessageEvent<E> onCommand(String command) {
         this.flux = flux.filter( event->{
-            String apply = event.getMessage().contentToString();
+            var apply = event.getMessage().contentToString();
             return apply.startsWith(command+" ");
         });
         return this;
@@ -27,7 +27,7 @@ public class QQMessageEvent<E extends MessageEvent> extends NekoMessageEvent<E> 
     @Override
     public NekoMessageEvent<E> onVerify(Class<?> clazz) {
         this.flux = flux.filter( event->{
-            MessageChain message = event.getMessage();
+            var message = event.getMessage();
             return message.stream().anyMatch(mes -> mes.getClass() == clazz);
         });
         return this;

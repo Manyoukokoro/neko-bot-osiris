@@ -5,7 +5,6 @@ import discord4j.core.DiscordClient;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.Event;
 import discord4j.core.event.domain.message.MessageCreateEvent;
-import discord4j.core.event.domain.message.MessageEvent;
 import discord4j.gateway.GatewayReactorResources;
 import io.netty.util.internal.StringUtil;
 import org.nekotori.config.FileBasedBotConfiguration;
@@ -31,32 +30,35 @@ public class NekoDiscordBot implements NekoBot<Event, MessageCreateEvent> {
 
 
     private void init(String path){
-        FileBasedBotConfiguration config = FileBasedBotConfiguration.resolveFile(new File(path));
-        Discord discord = Optional.ofNullable(config)
+        //get proxy configuration from config yaml file.
+        var config = FileBasedBotConfiguration.resolveFile(new File(path));
+        var discord = Optional.ofNullable(config)
                 .map(FileBasedBotConfiguration::getDiscord)
                 .orElse(new Discord());
-        Optional<String> hostExists = Optional.of(discord)
+        var hostExistsOption = Optional.of(discord)
                 .map(Discord::getProxyHost)
                 .flatMap(host -> StringUtil.isNullOrEmpty(host) ? Optional.empty() : Optional.of(host));
-        HttpClient secure  = hostExists.map(host-> HttpClient.create()
-                .proxy(addressSpec -> addressSpec
-                        .type(ProxyProvider.Proxy.SOCKS5)
-                        .host(discord.getProxyHost())
-                        .port(discord.getProxyPort()))
+
+        //config proxy if it's defined in configuration file.
+        var secure  = hostExistsOption.map(host-> HttpClient.create()
+                    .proxy(addressSpec -> addressSpec
+                            .type(ProxyProvider.Proxy.SOCKS5)
+                            .host(discord.getProxyHost())
+                            .port(discord.getProxyPort()))
                 .compress(true)).orElseGet(HttpClient::create);
-        ReactorResources proxyHttpClient =ReactorResources.builder()
+
+        var proxyHttpClient =ReactorResources.builder()
                 .httpClient(secure)
                 .build();
 
-        DiscordClient dcClient = hostExists.map(host-> DiscordClient.builder(discord.getToken())
+        //the proxy http client should be configured twice in client builder and gateway builder.
+        var dcClient = hostExistsOption.map(host-> DiscordClient.builder(discord.getToken())
                 .setReactorResources(proxyHttpClient)
                 .build()).orElseGet(()->DiscordClient.create(discord.getToken()));
-
-        gateway = hostExists.map(host->dcClient.gateway()
+        gateway = hostExistsOption.map(host->dcClient.gateway()
                 .setGatewayReactorResources(resources -> new GatewayReactorResources(proxyHttpClient))
                 .login()).orElseGet(()->dcClient.gateway().login());
     }
-
 
     @Override
     public <T extends Event> Flux<T> onEvent(Class<T> eventType) {

@@ -69,7 +69,7 @@ public class ChatGpt implements ChatBot {
     private Flux<String> getResponse(String userInput) {
         log.info("gpt input: {}", userInput);
         modifyHistory(userInput);
-        String body = prepareGptRequestBody();
+        var body = prepareGptRequestBody();
         return doRequest(body).map(ChatGpt::resolveGptResponseStr);
     }
 
@@ -80,9 +80,9 @@ public class ChatGpt implements ChatBot {
 
     @NotNull
     private String prepareGptRequestBody() {
-        JSONObject body = new JSONObject();
+        var body = new JSONObject();
         body.putOnce(MODEL,MODEL_VALUE);
-        LinkedList<HISTORY> copyOfHistory = new LinkedList<>(history);
+        var copyOfHistory = new LinkedList<>(history);
         copyOfHistory.addFirst(new HISTORY(HISTORY.SYSTEM,description));
         body.putOnce(MESSAGE,copyOfHistory);
         log.info(body.toStringPretty());
@@ -90,9 +90,10 @@ public class ChatGpt implements ChatBot {
     }
 
     private Flux<String> doRequest(String input){
-        Supplier<HttpClient> client = ReactorResources.DEFAULT_HTTP_CLIENT;
-        return client.get().proxy(spec->spec.type(ProxyProvider.Proxy.SOCKS5).address(InetSocketAddress.createUnresolved(proxyHost,proxyPort)))
+        var client = ReactorResources.DEFAULT_HTTP_CLIENT;
+        return client.get().proxy(spec->spec.type(ProxyProvider.Proxy.HTTP).address(InetSocketAddress.createUnresolved(proxyHost,proxyPort)))
                             .baseUrl(END_POINT)
+                            .secure()
                             .headersWhen(headers-> Mono.create(headerSink -> {
                                 headers.add(Header.CONTENT_TYPE.name(), ContentType.JSON.getValue());
                                 headers.add(Header.AUTHORIZATION.name(),"Bearer " + privateKey);
