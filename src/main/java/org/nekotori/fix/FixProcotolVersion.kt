@@ -69,3 +69,4 @@ object FixProtocolVersion {
             "$protocol   $version   $datetime"
         }
     }
+}
